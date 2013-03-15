@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>
+            Dragon Curve 
+        </title>
+        <script type="text/javascript" 
+            src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js">
+        </script>
+        <script type="text/javascript">
+            
+        // returns a String description of how to draw the curve where L stands for left and R for right 
+        // will call itself recursively 
+        var getCurveDescription = function (iteration){
+
+            if(iteration == 0){              
+                return "R";               
+                }
+            else if(iteration == 1){              
+                return "RRL";
+            }
+            else{
+                
+                var one_less = getCurveDescription(iteration-1);
+                //console.log("One less: " + one_less);
+                var center = Math.round(one_less.length/2) -1;
+                console.log("center is the " + center + " position of string " + one_less);
+                if(one_less[center] == "L"){
+                    var new_center = "R";                     
+                }
+                else{
+                    var new_center = "L"; 
+                }
+                console.log("Will replace " +  one_less[center] + " with " + new_center);
+
+                var one_less_complement_center = one_less.substring(0, center) + new_center + one_less.substring(center+1);
+                console.log("Replaced: " + one_less  + " with " + one_less_complement_center);
+
+                var this_iteration = one_less + "R" + one_less_complement_center;
+                return this_iteration;
+
+                }
+
+        };
+
+        var drawCurve = function (ctx, startX, startY, iteration) {
+
+            var curveDescription = getCurveDescription(iteration);
+            var STEP_SIZE = 10;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 3;
+            // random color 
+            var red = (((Math.random() * 64) + 128) >> 0);
+            var green = (((Math.random() * 64) + 128) >> 0);
+            var blue = (((Math.random() * 64) + 128) >> 0);
+            var alpha = 0.7;
+            ctx.strokeStyle = 'rgb(' + red + ',' + green + ',' + blue + ')';
+
+            // draw initial line
+            var newX = startX;
+            var newY = startY - STEP_SIZE;
+            ctx.lineTo(newX, newY);          
+            ctx.stroke();
+            var lastDirection = "up";
+
+            for(i = 0; i < curveDescription.length; i++){
+            
+            switch(lastDirection)
+            {
+                case "up":
+
+                    if(curveDescription.charAt(i) == "L"){
+                        
+                        newX -= STEP_SIZE;  
+                        lastDirection = "left";              
+                    }
+
+                else {
+                        newX += STEP_SIZE;   
+                        lastDirection = "right";           
+                    }
+                    break;
+
+                case "down":
+                    if(curveDescription.charAt(i) == "L"){
+                        
+                        newX += STEP_SIZE;  
+                        lastDirection = "right";              
+                    }
+
+                else {
+                        newX -= STEP_SIZE;   
+                        lastDirection = "left";           
+                    }
+                    break;
+
+                case "left":
+                    if(curveDescription.charAt(i) == "L"){                       
+                        newY += STEP_SIZE;  
+                        lastDirection = "down";              
+                    }
+
+                else { 
+                        newY -= STEP_SIZE;   
+                        lastDirection = "up";           
+                    }
+                    break;
+                case "right":
+                    if(curveDescription.charAt(i) == "L"){                        
+                        newY -= STEP_SIZE;  
+                        lastDirection = "up";              
+                    }
+
+                else {
+                        newY += STEP_SIZE;   
+                        lastDirection = "down";           
+                    }
+                    break; 
+ 
+            }
+            ctx.lineTo(newX, newY);          
+
+            }//end of for loop
+
+            // draw the curve
+            ctx.stroke();
+
+        };
+           // get reference to canvas element with JQuery 
+            $(document).ready(function() {
+                var canvas = document.getElementById('mycanvas');
+                var ctx = canvas.getContext('2d');
+                drawCurve(ctx, 1500, 680, 12);
+            });
+        </script>
+    </head>
+    <body>
+        
+        <canvas id="mycanvas" width=2800, height=2260>Your browser doesn't support the HTML5 canvas element. Please install a decent browser (e.g. Firefox)</canvas>
+        <p id="test"></> 
+        </div>
+    </body>
+</html>
